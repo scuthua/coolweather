@@ -9,7 +9,6 @@ import com.flower.coolweather.model.City;
 import com.flower.coolweather.model.Country;
 import com.flower.coolweather.model.Province;
 
-import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class CoolWeatherDB {
      * 获得CoolWeatherDB实例
      */
     public synchronized  static CoolWeatherDB getInstance(Context context) {
-        if (coolWeatherDB!=null) {
+        if (coolWeatherDB==null) {
             coolWeatherDB = new CoolWeatherDB(context);
         }
         return coolWeatherDB;
@@ -50,8 +49,8 @@ public class CoolWeatherDB {
     public void saveProvince(Province province) {
         if (province!=null) {
             ContentValues values=new ContentValues();
-            values.put("provinceName",province.getProvinceName());
-            values.put("provinceCode",province.getProvinceCode());
+            values.put("province_name",province.getProvinceName());
+            values.put("province_code",province.getProvinceCode());
             db.insert("Province", null, values);
         }
     }
@@ -67,7 +66,7 @@ public class CoolWeatherDB {
             do {
                 Province province = new Province();
                 province.setId(cursor.getInt(cursor.getColumnIndex("id")));
-                province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_name")));
+                province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
                 province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
                 provinces.add(province);
             } while (cursor.moveToNext());
@@ -124,7 +123,7 @@ public class CoolWeatherDB {
      */
     public List<Country>loadCountries(int cityId) {
         List<Country> countries = new ArrayList<>();
-        Cursor cursor=db.query("City",null,"city_id=?",new String[]{String.valueOf(cityId)},null,null,null);
+        Cursor cursor=db.query("Country",null,"city_id=?",new String[]{String.valueOf(cityId)},null,null,null);
         if (cursor.moveToFirst()) {
             do {
                 Country country=new Country();
@@ -138,7 +137,7 @@ public class CoolWeatherDB {
         }
         return countries;
     }
-    
+
 
 
 
