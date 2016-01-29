@@ -2,8 +2,12 @@ package com.flower.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -45,6 +49,12 @@ public class ChooseAreaActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("city_selected", false)) {
+            Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+            startActivity(intent);
+        }
+        Log.i("tag", "onCreate: ");
         setContentView(R.layout.choose_area);
         listView = (ListView) findViewById(R.id.list_view);
         textView = (TextView) findViewById(R.id.title_text);
@@ -61,6 +71,11 @@ public class ChooseAreaActivity extends Activity {
                 } else if (currentLevel == LEVLE_CITY) {
                     selectedCity = cityList.get(position);
                     queryCountries();
+                } else if (currentLevel == LEVLE_COUNTRY) {
+                    String countryCode = countryList.get(position).getCountryCode();
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    intent.putExtra("country_code", countryCode);
+                    startActivity(intent);
                 }
             }
         });
@@ -70,7 +85,7 @@ public class ChooseAreaActivity extends Activity {
 
     private void queryProvince() {
         provinceList = coolWeatherDB.loadProvinces();
-        if (provinceList!=null&&provinceList.size() > 0) {
+        if (provinceList != null && provinceList.size() > 0) {
             dataList.clear();
             for (Province province : provinceList) {
                 dataList.add(province.getProvinceName());
@@ -128,13 +143,13 @@ public class ChooseAreaActivity extends Activity {
         HttpUtil.sendHttpRequest(address, new HttpCallBackListener() {
             @Override
             public void onFinish(String response) {
-                boolean result =false;
+                boolean result = false;
                 if ("province".equals(type)) {
                     result = Utilty.handleProvincesResponse(coolWeatherDB, response);
-                }else if ("city".equals(type)) {
+                } else if ("city".equals(type)) {
                     result = Utilty.handleCitiesResponse(coolWeatherDB, response,
                             selectedProvince.getId());
-                }else if ("country".equals(type)) {
+                } else if ("country".equals(type)) {
                     result = Utilty.handleCountriesResponse(coolWeatherDB, response, selectedCity
                             .getId());
                 }
@@ -145,9 +160,9 @@ public class ChooseAreaActivity extends Activity {
                             closeProgressDialog();
                             if ("province".equals(type)) {
                                 queryProvince();
-                            }else if ("city".equals(type)) {
+                            } else if ("city".equals(type)) {
                                 queryCities();
-                            }else if ("country".equals(type)) {
+                            } else if ("country".equals(type)) {
                                 queryCountries();
                             }
                         }
@@ -176,6 +191,7 @@ public class ChooseAreaActivity extends Activity {
         }
         progressDialog.show();
     }
+
     private void closeProgressDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
@@ -186,7 +202,7 @@ public class ChooseAreaActivity extends Activity {
     public void onBackPressed() {
         if (currentLevel == LEVLE_CITY) {
             queryProvince();
-        }else if (currentLevel == LEVLE_COUNTRY) {
+        } else if (currentLevel == LEVLE_COUNTRY) {
             queryCities();
         } else {
             finish();

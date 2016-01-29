@@ -1,5 +1,7 @@
 package com.flower.coolweather.util;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,12 +31,14 @@ public class HttpUtil {
                     while ((str = reader.readLine()) != null) {
                         response.append(str);
                     }
+                    Log.e("tag", "run: " + response.toString());
                     if (listener != null) {
                         listener.onFinish(response.toString());
                     }
                 } catch (Exception e) {
                     if (listener != null) {
                         listener.onError(e);
+                        e.printStackTrace();
                     }
                 }finally {
                     if (connection != null) {
